@@ -189,7 +189,9 @@ def build_report(summary: dict, rows: list[dict], stats: dict, use_llm: bool) ->
 def main() -> None:
     parser = argparse.ArgumentParser(description="跑 POC 测试集并生成报告")
     parser.add_argument("--no-llm", action="store_true", help="只测检索与拒答闸门，不调用大模型")
-    parser.add_argument("--out", default=str(REPORT_DIR / "POC测试报告.md"), help="报告输出路径")
+    parser.add_argument("--out", default=None,
+                        help="报告输出路径（默认：完整模式 reports/POC测试报告.md，"
+                             "仅检索模式 reports/POC测试报告_检索层.md，两种模式互不覆盖）")
     args = parser.parse_args()
 
     use_llm = not args.no_llm
@@ -206,7 +208,10 @@ def main() -> None:
     summary = summarize(rows)
     report = build_report(summary, rows, stats, use_llm)
 
-    out = Path(args.out)
+    # 两种模式输出到不同文件，避免 --no-llm 快速自检覆盖掉含模型推理的正式报告
+    out = Path(args.out) if args.out else REPORT_DIR / (
+        "POC测试报告.md" if use_llm else "POC测试报告_检索层.md"
+    )
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(report, encoding="utf-8")
 
