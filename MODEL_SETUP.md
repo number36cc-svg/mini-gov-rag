@@ -15,8 +15,9 @@
 MiniCPM5-2B 量化后约 1.4GB，几分钟能下完。
 
 ```bash
-# 1. 下载（二选一，国内网络 ModelScope 更快）
-curl -L -o ~/.ollama/gguf/MiniCPM5-2B-Q4_K_M.gguf \
+# 1. 下载到项目 models/ 目录（该目录已在 .gitignore 中，不会误入版本库）
+mkdir -p models
+curl -L -o models/MiniCPM5-2B-Q4_K_M.gguf \
   "https://huggingface.co/openbmb/MiniCPM5-2B-GGUF/resolve/main/MiniCPM5-2B-Q4_K_M.gguf"
 
 # 2. 导入（在项目根目录执行，Modelfile.minicpm5 已备好）
@@ -25,6 +26,10 @@ ollama create minicpm5-2b -f Modelfile.minicpm5
 # 3. 验证
 ollama run minicpm5-2b "你好"
 ```
+
+> **实测结果**：两个方案最终都跑通了。`ollama pull minicpm-v` 在服务权限修好、网络换成家庭宽带后正常拉取（5.5GB），
+> 并且**最终 POC 测试用的是 `minicpm-v`**——同样语料下它的条款复述完整度明显好于 2B，
+> `minicpm5-2b` 作为"低配办公本"方案保留。两者切换只需 `LLM_MODEL` 环境变量，见下方"换模型"。
 
 > **注意**：`ollama create` 需要服务有写模型目录的权限。如果报 `operation not permitted`，
 > 在**自己的终端**里重启一次服务再执行：
