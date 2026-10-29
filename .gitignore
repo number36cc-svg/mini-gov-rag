@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# 构建产物：向量索引由 python -m app.ingest 生成，不入库
+data/index/
+
+# 原始文档的二进制源文件（仓库里放清洗后的 .md 版本）
+data/docs/*.pdf
+data/docs/*.docx
+
+# 本地模型
+*.gguf
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
