@@ -14,6 +14,7 @@ import numpy as np
 import requests
 
 from .config import (
+    CONF_GRAY,
     CONF_HIGH,
     CONF_LOW,
     INDEX_DIR,
@@ -315,7 +316,7 @@ def _extract_citations(hits: list[dict]) -> list[dict]:
                 "source": h["source"],
                 "version": h["version"],
                 "page": h["page"],
-                "score": round(h["score"], 3),
+                "score": round(h.get("cos", h["score"]), 3),
                 "excerpt": h["text"][:160].replace("\n", " "),
             }
         )
@@ -447,7 +448,9 @@ def answer(question: str, scenario: str | None = None, on_stage=None) -> dict:
 
     _stage("检索制度条款…")
     hits = retrieve(question, scenario=scenario)
-    top_score = round(hits[0]["score"], 3) if hits else 0.0
+    # 界面上显示的"最高相似度"必须与判档用同一个数（cos）。
+    # 早期用融合分（score），数值和阈值对不上，演示时看着自相矛盾。
+    top_score = round(hits[0].get("cos", hits[0]["score"] if hits else 0.0), 3) if hits else 0.0
 
     def _refuse(reason: str) -> dict:
         return {
@@ -460,6 +463,23 @@ def answer(question: str, scenario: str | None = None, on_stage=None) -> dict:
     # 闸一：相似度不够
     confidence = grade_confidence(hits)
     if confidence == "无法回答":
+        # 灰档：cos 在 [CONF_GRAY, CONF_LOW) 的问题不算"明显无关"——
+        # 实测"目的类"真问题（"预算法为什么编制"→第一条"为了…制定本法"）cos 只有
+        # 0.46~0.48，硬拒会让用户觉得"库里有却答不了"。灰档不生成答案、只展示
+        # 最相关条款原文，即使放进来的是超纲问题也没有编造风险。
+        top_cos = hits[0].get("cos", 0.0) if hits else 0.0
+        if top_cos >= CONF_GRAY:
+            ref = hits[0]
+            return {
+                "answer": (
+                    "知识库中未找到能直接回答该问题的条款。相关度最高的条款原文如下，供参考：\n\n"
+                    "> 《%s》%s 第%s页\n> %s"
+                    % (ref["source"], ref["version"], ref["page"], ref["text"][:220])
+                ) + "\n\n" + REFUSAL,
+                "confidence": "无法回答",
+                "citations": _extract_citations(hits[:1]),
+                "top_score": round(top_cos, 3),
+            }
         return _refuse("检索到的条款与问题相关度不足。")
 
     # 闸二：问题点名了不存在的条款
