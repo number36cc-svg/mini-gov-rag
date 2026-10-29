@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "version": "1.0",
+    "corpus": "预算法（2014修正 / 2018修正）、政府非税收入管理办法、演示系统操作手册、A/B 学院报错对照（演示数据）",
+    "note": "keywords 为该题答案在原文中的特征词，用于自动判分；must_refuse 为应拒答题。",
+    "updated": "2026-10-29"
+  },
+  "cases": [
+    {
+      "id": "N01",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "各级一般公共预算应当按照什么比例设置预备费？",
+      "keywords": [
+        "百分之一",
+        "百分之三"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N02",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "预算法规定的预算年度是从什么时候到什么时候？",
+      "keywords": [
+        "预算年度",
+        "公历"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N03",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "预算包括哪几本预算？",
+      "keywords": [
+        "一般公共预算",
+        "政府性基金预算",
+        "国有资本经营预算",
+        "社会保险基金预算"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N04",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "什么是政府非税收入？",
+      "keywords": [
+        "除税收以外"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N05",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "非税收入具体包括哪些收入？",
+      "keywords": [
+        "行政事业性收费",
+        "政府性基金",
+        "罚没",
+        "国有资源"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N06",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "经人大批准的预算应当在多长时间内向社会公开？",
+      "keywords": [
+        "二十日内"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N07",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "预备费主要用于哪些支出？",
+      "keywords": [
+        "自然灾害",
+        "突发事件",
+        "难以预见"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N08",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "各级预算预备费的动用方案由谁提出、由谁决定？",
+      "keywords": [
+        "财政部门",
+        "报本级政府决定"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N09",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "预算法自什么时间起施行？",
+      "keywords": [
+        "2015年1月1日"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "N10",
+      "type": "常规问答",
+      "scenario": "制度文件",
+      "question": "非税收入的收缴实行什么制度？",
+      "keywords": [
+        "国库集中收缴"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "V01",
+      "type": "版本对比",
+      "scenario": "制度文件",
+      "question": "预算法 2018 年修正相比 2014 年修正，财政部门监督检查的职责范围有什么变化？",
+      "keywords": [
+        "预算管理有关工作"
+      ],
+      "must_refuse": false,
+      "expect_versions": 2
+    },
+    {
+      "id": "V02",
+      "type": "版本对比",
+      "scenario": "制度文件",
+      "question": "预算法第五十一条在两个版本中引用的条款号一样吗？",
+      "keywords": [
+        "第五十条"
+      ],
+      "must_refuse": false,
+      "expect_versions": 2
+    },
+    {
+      "id": "V03",
+      "type": "版本对比",
+      "scenario": "制度文件",
+      "question": "从 2014 修正到 2018 修正，预算法的施行日期有变化吗？",
+      "keywords": [
+        "2015年1月1日"
+      ],
+      "must_refuse": false,
+      "expect_versions": 2
+    },
+    {
+      "id": "V04",
+      "type": "版本对比",
+      "scenario": "制度文件",
+      "question": "预算法关于预备费设置比例的规定，两个修正版本有区别吗？",
+      "keywords": [
+        "百分之一",
+        "百分之三"
+      ],
+      "must_refuse": false,
+      "expect_versions": 2
+    },
+    {
+      "id": "O01",
+      "type": "操作辅助",
+      "scenario": "运维手册",
+      "question": "提示「导出失败：超出导出条数上限」应该怎么处理？",
+      "keywords": [
+        "分批导出",
+        "调整上限"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "O02",
+      "type": "操作辅助",
+      "scenario": "运维手册",
+      "question": "票据作废时提示「已实时推送，须先红冲」是什么原因、怎么处理？",
+      "keywords": [
+        "红冲"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "O03",
+      "type": "操作辅助",
+      "scenario": "运维手册",
+      "question": "登录提示账号已锁定，需要等多久才能恢复？",
+      "keywords": [
+        "30分钟"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "O04",
+      "type": "操作辅助",
+      "scenario": "运维手册",
+      "question": "日终处理期间提交业务失败，是系统故障吗？",
+      "keywords": [
+        "23:30",
+        "00:30"
+      ],
+      "must_refuse": false
+    },
+    {
+      "id": "R01",
+      "type": "应拒答",
+      "scenario": "制度文件",
+      "question": "个人所得税专项附加扣除的标准是多少？",
+      "keywords": [],
+      "must_refuse": true
+    },
+    {
+      "id": "R02",
+      "type": "应拒答",
+      "scenario": "制度文件",
+      "question": "我们单位去年的非税收入是多少？",
+      "keywords": [],
+      "must_refuse": true
+    },
+    {
+      "id": "R03",
+      "type": "应拒答",
+      "scenario": "制度文件",
+      "question": "预算法第 200 条规定了什么内容？",
+      "keywords": [],
+      "must_refuse": true
+    },
+    {
+      "id": "R04",
+      "type": "应拒答",
+      "scenario": "制度文件",
+      "question": "政府采购法规定的竞争性谈判适用条件是什么？",
+      "keywords": [],
+      "must_refuse": true
+    },
+    {
+      "id": "R05",
+      "type": "应拒答",
+      "scenario": "制度文件",
+      "question": "职工年休假天数怎么计算？",
+      "keywords": [],
+      "must_refuse": true
+    },
+    {
+      "id": "R06",
+      "type": "应拒答",
+      "scenario": "运维手册",
+      "question": "系统数据库的管理员密码是多少？",
+      "keywords": [],
+      "must_refuse": true
+    }
+  ]
+}
