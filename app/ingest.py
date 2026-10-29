@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import threading
 from pathlib import Path
 
 import numpy as np
@@ -246,14 +247,23 @@ def chunk_documents(docs: list[dict]) -> list[dict]:
 
 
 # ---------------------------------------------------------------- 向量化
+_model_lock = threading.Lock()
+
+
 def get_model():
-    """懒加载 embedding 模型（首次会下载约 95MB）。"""
+    """懒加载 embedding 模型（首次会下载约 95MB）。
+
+    加锁是为了界面预热线程和用户提问并发触发加载时不会重复装载——
+    双重检查锁：锁外先查一次（热路径无锁开销），锁内再查一次（防竞态）。
+    """
     global _model
     if _model is None:
-        from sentence_transformers import SentenceTransformer
+        with _model_lock:
+            if _model is None:
+                from sentence_transformers import SentenceTransformer
 
-        print("[入库] 加载 embedding 模型 %s ..." % EMBED_MODEL)
-        _model = SentenceTransformer(EMBED_MODEL)
+                print("[入库] 加载 embedding 模型 %s ..." % EMBED_MODEL)
+                _model = SentenceTransformer(EMBED_MODEL)
     return _model
 
 

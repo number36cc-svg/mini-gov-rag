@@ -18,6 +18,10 @@ SCENARIOS = ["制度文件", "运维手册"]
 #   先执行：ollama pull minicpm-v
 LLM_MODEL = "minicpm-v"
 OLLAMA_URL = "http://localhost:11434"
+# 模型常驻内存时长。Ollama 默认闲置 5 分钟就卸载模型，下次提问要重新从磁盘
+# 加载 5.5GB（30-60 秒）——演示时"第一问巨慢"的元凶。设为 60 分钟，
+# 演示全程模型驻留，每问稳定在推理本身的时间（10 秒级）。
+LLM_KEEP_ALIVE = "60m"
 
 # Embedding：中文语义向量模型，本地运行，首次自动下载（约 95MB）
 EMBED_MODEL = "BAAI/bge-small-zh-v1.5"

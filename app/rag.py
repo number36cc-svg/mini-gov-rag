@@ -17,6 +17,7 @@ from .config import (
     CONF_HIGH,
     CONF_LOW,
     INDEX_DIR,
+    LLM_KEEP_ALIVE,
     LLM_MODEL,
     MAX_TOKENS,
     OLLAMA_URL,
@@ -376,6 +377,23 @@ def version_article_diff(question: str, hits: list[dict] | None = None) -> str:
     return "【程序核对结果】以下为逐字比对结论，必须直接采用，不得自行判断：\n" + "\n".join(lines)
 
 
+def warmup_llm() -> None:
+    """预热：把模型装进内存并常驻（keep_alive）。
+
+    Ollama 默认闲置 5 分钟卸载模型，重新加载 5.5GB 要 30-60 秒——
+    演示第一问"卡很久"的元凶。界面启动时在后台线程调一次本函数，
+    用户点第一个问题时模型已经是热的。
+    """
+    try:
+        requests.post(
+            OLLAMA_URL + "/api/generate",
+            json={"model": LLM_MODEL, "prompt": "好", "keep_alive": LLM_KEEP_ALIVE, "stream": False},
+            timeout=REQUEST_TIMEOUT,
+        )
+    except requests.RequestException:
+        pass  # 预热失败不打扰用户，ask_llm 里会给出可操作的报错
+
+
 def ask_llm(
     question: str, hits: list[dict], system_prompt: str = SYSTEM_PROMPT, extra: str = ""
 ) -> str:
@@ -393,6 +411,7 @@ def ask_llm(
             },
         ],
         "stream": False,
+        "keep_alive": LLM_KEEP_ALIVE,
         "options": {"temperature": TEMPERATURE, "num_predict": MAX_TOKENS},
     }
     try:
@@ -410,14 +429,23 @@ def ask_llm(
     return (data.get("message") or {}).get("content", "").strip() or "（模型返回为空）"
 
 
-def answer(question: str, scenario: str | None = None) -> dict:
+def answer(question: str, scenario: str | None = None, on_stage=None) -> dict:
     """完整问答流程：检索 → 三道闸 → 生成 → 返回结构化结果。
+
+    on_stage: 可选回调，函数签名 (stage_text: str)，界面用它展示真实进度
+    （检索毫秒级、生成 10 秒级，首次或闲置后模型加载另需 30-60 秒——
+    把等待时间花在哪说清楚，比一个笼统的转圈体验好得多）。
 
     为什么要三道闸，而不是"相似度够高就答"：
     课程 demo 里一个阈值就够用，但政企客户验收时会拿"预算法第 200 条"这种
     不存在的问题来考你——它的向量相似度比很多真问题都高。答错了要担责，
     所以这里的原则是：宁可少答，不可错答。
     """
+    def _stage(text: str) -> None:
+        if on_stage:
+            on_stage(text)
+
+    _stage("检索制度条款…")
     hits = retrieve(question, scenario=scenario)
     top_score = round(hits[0]["score"], 3) if hits else 0.0
 
@@ -441,6 +469,7 @@ def answer(question: str, scenario: str | None = None) -> dict:
 
     # 闸三：模型读完后自己判断答不了
     diff_note = version_article_diff(question, hits)  # 版本对比题：先给程序核对结论
+    _stage("本地模型生成回答中…（首次或闲置后需加载模型，约 30-60 秒；常驻后 10 秒内）")
     text = ask_llm(question, hits, extra=diff_note)
     if text.startswith(LLM_ERROR_MARK):
         # 环境问题要如实暴露，不能伪装成"依据充分"的答案

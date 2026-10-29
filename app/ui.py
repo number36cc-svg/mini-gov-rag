@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 
 import streamlit as st
 
@@ -22,6 +23,17 @@ from app import rag  # noqa: E402
 from app.config import LLM_MODEL, SCENARIOS  # noqa: E402
 
 st.set_page_config(page_title="政企制度问答（端侧 RAG）", page_icon="📄", layout="wide")
+
+
+# ---------------------------------------------------------------- 预热
+# 演示时最怕"第一问卡一分钟"：Ollama 默认闲置 5 分钟就卸载模型，
+# 下次提问要重新从磁盘加载 5.5GB（实测 43 秒）。所以页面打开就后台预热：
+# embedding 模型 + LLM 各自装进内存并 keep_alive，页面本身秒开不受影响；
+# 用户点第一个问题时模型通常已是热的（就算没热完，加载有锁，只会等不会错）。
+if "warmed_up" not in st.session_state:
+    st.session_state.warmed_up = True
+    if rag.knowledge_stats().get("chunks"):
+        threading.Thread(target=lambda: (rag.get_model(), rag.warmup_llm()), daemon=True).start()
 
 CONF_STYLE = {
     "依据充分": ("#EAF3DE", "#3B6D11", "依据充分"),
@@ -112,8 +124,15 @@ if question:
             result = {"answer": "索引未构建，请先运行 `python -m app.ingest`", "confidence": "无法回答",
                       "citations": [], "top_score": 0}
         else:
-            with st.spinner("检索制度条款中…"):
-                result = rag.answer(question, scenario=None if scenario == "全部" else scenario)
+            # 分阶段展示真实进度：检索是毫秒级，等待几乎全在本地模型生成
+            with st.status("正在回答…", expanded=True) as status_box:
+                stage = status_box.update
+                result = rag.answer(
+                    question,
+                    scenario=None if scenario == "全部" else scenario,
+                    on_stage=lambda text: stage(label=text, state="running"),
+                )
+                status_box.update(label="回答完成", state="complete", expanded=False)
         render_answer(result)
 
     st.session_state.messages.append({"role": "assistant", "content": result["answer"], "result": result})
