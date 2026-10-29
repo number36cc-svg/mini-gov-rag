@@ -1,4 +1,8 @@
-FROM /Users/zhangcong/.ollama/gguf/MiniCPM5-2B-Q4_K_M.gguf
+# 导入 MiniCPM5-2B（GGUF 量化版）到 Ollama
+# 用法：把 MiniCPM5-2B-Q4_K_M.gguf 放到本项目 models/ 目录，或在下方 FROM 行填入你的实际路径
+#   1) mkdir -p models && 把 gguf 移进 models/
+#   2) ollama create minicpm5-2b -f Modelfile.minicpm5
+FROM ./models/MiniCPM5-2B-Q4_K_M.gguf
 
 PARAMETER temperature 0.3
 PARAMETER num_predict 512
